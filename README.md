@@ -7,6 +7,7 @@ A collection of setup scripts and Docker Compose configurations for a local deve
 - **docker-compose.yml**: Docker Compose configuration for PostgreSQL 18 and Redis 8
 - **docker.sh**: Script to install Docker and Docker Compose on Ubuntu
 - **pivotal-vim.sh**: Script to install Pivotal's vim configuration
+- **nvim-lazy.sh**: Script to install Neovim + LazyVim with our team configuration
 
 ## Prerequisites
 
@@ -69,6 +70,22 @@ To install Pivotal's vim configuration:
 ```
 
 This will clone the Pivotal vim-config repository to `~/.vim` and run the installation script.
+
+### 5. Neovim + LazyVim
+
+To install Neovim with our team's configuration:
+
+```bash
+./nvim-lazy.sh
+```
+
+Installs Neovim v0.12.5, `fd`, the JetBrainsMono Nerd Font, the LazyVim starter, and our config on top of it. Everything goes under `$HOME`; only the apt packages in step 1 need sudo.
+
+**Note**: Restart your terminal fully afterwards. The Nerd Font is selected by the terminal emulator, not by Neovim, and a running terminal will not pick up a newly installed font. The script sets the font automatically for Terminator; for any other terminal, set it to `JetBrainsMono Nerd Font Mono` in your profile.
+
+Re-running is safe. Neovim, `fd`, the font, and the terminal profile are skipped if already present. An existing `~/.config/nvim` is moved to a timestamped backup rather than overwritten, along with the plugin and state directories under `~/.local/share/nvim`, `~/.local/state/nvim`, and `~/.cache/nvim`.
+
+Language servers are not installed by the script. Mason pulls each one the first time you open a matching file, so the first Ruby or TypeScript file will pause briefly. Run `:checkhealth` if anything looks wrong.
 
 ## Services
 

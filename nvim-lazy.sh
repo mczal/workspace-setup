@@ -147,7 +147,7 @@ vim.opt.relativenumber = false
 LUA
 
 cat > "$NVIM_CONFIG/lua/plugins/explorer.lua" <<'LUA'
--- LazyVim's explorer is the snacks picker, not neo-tree. `<leader>e` maps to
+-- LazyVim's explorer is the snacks picker, not neo-tree. `<leader>fe` maps to
 -- "Explorer Snacks (root dir)", so neo-tree options never reach the tree on
 -- screen. The explorer source inherits `hidden`/`ignored` from the files
 -- picker, and both default to false.
@@ -204,6 +204,22 @@ end
 return {
   {
     "folke/snacks.nvim",
+    -- One keystroke for the tree instead of LazyVim's `<leader>e` / `<leader>E`,
+    -- which are turned off below. Both still route through `<leader>fe` and
+    -- `<leader>fE`, so the root-dir and cwd variants keep whatever LazyVim
+    -- defines them as. Toggling is already the picker's behavior: opening a
+    -- source that is already open closes it (`Snacks.picker.pick`).
+    --
+    -- `\` is also LazyVim's `maplocalleader`. The only localleader mapping the
+    -- extras we load define is `<localleader>r` (Run Lua), which is buffer
+    -- local to lua files, so in a lua buffer `\` waits out `timeoutlen` (300ms)
+    -- to see whether an `r` follows. Everywhere else it fires immediately.
+    keys = {
+      { "<leader>e", false },
+      { "<leader>E", false },
+      { "\\", "<leader>fe", desc = "Explorer Snacks (root dir)", remap = true },
+      { "|", "<leader>fE", desc = "Explorer Snacks (cwd)", remap = true },
+    },
     opts = {
       picker = {
         sources = {

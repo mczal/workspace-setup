@@ -144,6 +144,23 @@ cat > "$NVIM_CONFIG/lua/config/options.lua" <<'LUA'
 -- renumbers every line as a distance from the cursor instead of its real
 -- position in the file.
 vim.opt.relativenumber = false
+
+-- No format on save. `<leader>cf` still formats on demand.
+vim.g.autoformat = false
+LUA
+
+cat > "$NVIM_CONFIG/lua/plugins/diagnostics.lua" <<'LUA'
+return {
+  {
+    "neovim/nvim-lspconfig",
+    opts = {
+      -- Rubocop/LSP messages printed at the end of each line (the cyan
+      -- "Style/..." text) are off. Underlines and gutter signs stay, and
+      -- `<leader>cd` shows the message for the current line.
+      diagnostics = { virtual_text = false },
+    },
+  },
+}
 LUA
 
 cat > "$NVIM_CONFIG/lua/plugins/explorer.lua" <<'LUA'
@@ -292,7 +309,7 @@ cat > "$NVIM_CONFIG/lazyvim.json" <<'JSON'
 }
 JSON
 
-info "options.lua, plugins/explorer.lua, lazyvim.json"
+info "options.lua, plugins/explorer.lua, plugins/diagnostics.lua, lazyvim.json"
 
 # ---------------------------------------------------------------------------
 step "7/8  Terminal font"

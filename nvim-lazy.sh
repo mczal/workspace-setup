@@ -218,6 +218,38 @@ local function jump(picker, pattern, step)
   end
 end
 
+-- Like the built-in `p`, but asks for the new name first, so a file yanked
+-- with `y` can be duplicated into the directory under the cursor. `p` always
+-- keeps the original name, so it refuses to paste into the file's own folder.
+local function paste_as(picker)
+  local register = vim.v.register or "+"
+  local files = vim.tbl_filter(function(file)
+    return file ~= "" and vim.fn.filereadable(file) == 1
+  end, vim.split(vim.fn.getreg(register) or "", "\n", { plain = true }))
+  if #files ~= 1 then
+    Snacks.notify.warn("Yank exactly one file with `y` first (`p` pastes several)")
+    return
+  end
+  local from = files[1]
+  local dir = picker:dir()
+  Snacks.input({ prompt = "Paste as", default = vim.fn.fnamemodify(from, ":t") }, function(name)
+    if not name or name:find("^%s*$") then
+      return
+    end
+    local to = vim.fs.normalize(dir .. "/" .. name)
+    if vim.uv.fs_stat(to) then
+      Snacks.notify.warn("File already exists:\n- `" .. to .. "`")
+      return
+    end
+    vim.fn.mkdir(vim.fs.dirname(to), "p")
+    Snacks.picker.util.copy_path(from, to)
+    local tree = require("snacks.explorer.tree")
+    tree:refresh(vim.fs.dirname(to))
+    tree:open(vim.fs.dirname(to))
+    require("snacks.explorer.actions").update(picker, { target = to })
+  end)
+end
+
 return {
   {
     "folke/snacks.nvim",
@@ -253,6 +285,7 @@ return {
               tree_search_prev = function(picker)
                 jump(picker, last_pattern, -1)
               end,
+              explorer_paste_as = paste_as,
             },
             win = {
               list = {
@@ -263,6 +296,7 @@ return {
                   ["/"] = "tree_search",
                   ["n"] = "tree_search_next",
                   ["N"] = "tree_search_prev",
+                  ["D"] = "explorer_paste_as",
                 },
               },
             },
